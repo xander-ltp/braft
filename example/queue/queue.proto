@@ -1,0 +1,78 @@
+syntax="proto2";
+package example;
+option cc_generic_services = true;
+
+message QData {
+    optional int64 did = 1;
+    optional int64 cid = 2;
+    optional int64 push_time = 3;
+    optional int64 get_count = 4;
+    optional bytes raw_data = 5;
+};
+
+message Snapshot {
+    required int64 seq = 1;
+    required int64 index = 2;
+    optional int64 timestamp = 3;
+    repeated QData datas = 4;
+};
+
+message CreateRequest {
+    optional string desc = 1;
+};
+
+message CreateResponse {
+    optional int32 code = 1;
+    optional int64 qid = 2;
+};
+
+message DeleteRequest {
+    optional int64 qid = 1;
+};
+
+message DeleteResponse {
+    optional int32 code = 1;
+    optional int64 qid = 2;
+};
+
+message PushRequest {
+    optional int64 qid = 1;
+    optional int64 cid = 2;
+    optional bytes value = 3;
+};
+
+message PushResponse {
+    optional bool success = 1;
+    optional int64 qid = 2;
+    optional int64 cid = 3;
+    optional int64 did = 4; // data id
+};
+
+message GetRequest {
+    optional int64 did_start = 1;
+    optional int64 did_end = 2;
+};
+
+message GetResponse {
+    optional int64 did_start = 1;
+    optional int64 did_end = 2;
+    repeated QData datas = 3;
+};
+
+message PopRequest {
+    optional int64 did_start = 1;
+    optional int64 did_end = 2;
+};
+
+message PopResponse {
+    optional int32 code = 1;
+    optional int32 op_count = 2;
+};
+
+service QueueService {
+    rpc create(CreateRequest) returns (CreateResponse);
+    rpc del(DeleteRequest) returns (DeleteResponse);
+    rpc push(PushRequest) returns (PushResponse);
+    rpc get(GetRequest) returns (GetResponse);
+    rpc pop(PopRequest) returns (PopResponse);
+};
