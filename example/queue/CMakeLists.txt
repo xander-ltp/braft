@@ -13,6 +13,7 @@ set(CMAKE_PREFIX_PATH ${OUTPUT_PATH})
 
 include(FindThreads)
 include(FindProtobuf)
+include(FindOpenSSL)
 
 if (NOT PROTOBUF_PROTOC_EXECUTABLE)
     get_filename_component(PROTO_LIB_DIR ${PROTOBUF_LIBRARY} DIRECTORY)
@@ -117,13 +118,39 @@ set(DYNAMIC_LIB
     ${LEVELDB_LIB}
     ${BRAFT_LIB}
     ${BRPC_LIB}
-    rt
-    ssl
-    crypto
+    ${OPENSSL_LIBRARIES}
+    ${OPENSSL_CRYPTO_LIBRARY}
     dl
     z
     )
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(DYNAMIC_LIB ${DYNAMIC_LIB}
+        pthread
+        "-framework CoreFoundation"
+        "-framework CoreGraphics"
+        "-framework CoreData"
+        "-framework CoreText"
+        "-framework Security"
+        "-framework Foundation"
+        "-Wl,-U,_MallocExtension_ReleaseFreeMemory"
+        "-Wl,-U,_ProfilerStart"
+        "-Wl,-U,_ProfilerStop"
+        "-Wl,-U,__Z13GetStackTracePPvii")
+else()
+    set(DYNAMIC_LIB ${DYNAMIC_LIB}
+        rt
+        )
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+target_link_libraries(queue_client
+                      ${DYNAMIC_LIB}
+                      )
+target_link_libraries(queue_server
+                      ${DYNAMIC_LIB}
+                      )
+else()
 target_link_libraries(queue_client
                       "-Xlinker \"-(\""
                       ${DYNAMIC_LIB}
@@ -132,3 +159,4 @@ target_link_libraries(queue_server
                       "-Xlinker \"-(\""
                       ${DYNAMIC_LIB}
                       "-Xlinker \"-)\"")
+endif()

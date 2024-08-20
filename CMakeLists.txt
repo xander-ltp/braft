@@ -3,6 +3,7 @@ project(braft C CXX)
 
 SET(CPACK_GENERATOR "DEB")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "braft authors") #required
+SET(MACOSX_RPATH OFF)
 
 INCLUDE(CPack)
 
@@ -138,6 +139,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         "-Wl,-U,_MallocExtension_ReleaseFreeMemory"
         "-Wl,-U,_ProfilerStart"
         "-Wl,-U,_ProfilerStop"
+        "-Wl,-U,__Z13GetStackTracePPvii"
         )
 else()
     set(DYNAMIC_LIB ${DYNAMIC_LIB}
